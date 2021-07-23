@@ -21,6 +21,7 @@ function getData(url){
 function newsFeed(){
 
   const newsFeed = getData(NEWS_URL);
+  const newsFeedLen = newsFeed.length/10;
   const newsList = [];
   newsList.push('<ul>');
   for(let i = (store.currentPage-1)*10; i < store.currentPage*10; i++) {
@@ -30,14 +31,14 @@ function newsFeed(){
         <a href="#/show/${newsFeed[i].id}">${newsFeed[i].title} (${newsFeed[i].comments_count})</a>
        </li>
       `);  
-    
+      
   } 
-
+  console.log(newsFeedLen);
   newsList.push('</ul>');  
   newsList.push(`
     <div>
       <a href="#/page/${store.currentPage > 1 ? store.currentPage-1 : 1}">Prev</a>
-      <a href="#/page/${store.currentPage+1}">Next</a>
+      <a href="#/page/${store.currentPage+1 < newsFeedLen+1?store.currentPage+1:store.currentPage}">Next</a>
     </div>  
   `);  
   container.innerHTML = newsList.join('');
