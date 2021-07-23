@@ -4,6 +4,12 @@ const container = document.getElementById('root');
 const ajax = new XMLHttpRequest();
 const NEWS_URL = 'https://api.hnpwa.com/v0/news/1.json';
 const CONTENT_URL = 'https://api.hnpwa.com/v0/item/@id.json';
+
+const store = {
+  currentPage: 1,
+};
+
+
   
 function getData(url){
   ajax.open('GET', url, false);
@@ -11,36 +17,60 @@ function getData(url){
 
   return JSON.parse(ajax.response);
 }  
-  
-const newsFeed = getData(NEWS_URL);
- 
-window.addEventListener('hashchange', function(){
 
-  const id = location.hash.substr(1);
+function newsFeed(){
+
+  const newsFeed = getData(NEWS_URL);
+  const newsList = [];
+  newsList.push('<ul>');
+  for(let i = (store.currentPage-1)*10; i < store.currentPage*10; i++) {
+
+    newsList.push(  
+      `<li>
+        <a href="#/show/${newsFeed[i].id}">${newsFeed[i].title} (${newsFeed[i].comments_count})</a>
+       </li>
+      `);  
+    
+  } 
+
+  newsList.push('</ul>');  
+  newsList.push(`
+    <div>
+      <a href="#/page/${store.currentPage > 1 ? store.currentPage-1 : 1}">Prev</a>
+      <a href="#/page/${store.currentPage+1}">Next</a>
+    </div>  
+  `);  
+  container.innerHTML = newsList.join('');
+  
+}
+
+function newsDetail(){
+
+  const id = location.hash.substr(7);
   const newsContent = getData(CONTENT_URL.replace('@id',id));
 
   container.innerHTML = `
     <h1>${newsContent.title}</h1>
 
     <div>
-      <a href='#'>to List Page</a>
-    </div>
+      <a href='#/page/${store.currentPage}'>to List Page</a>
+    </div> 
   `; 
-
-});
-
-
-const newsList = [];
-newsList.push('<ul>');
-for(let i = 0; i < 10; i++) {
-
-  newsList.push(  
-    `<li>
-      <a href="#${newsFeed[i].id}">${newsFeed[i].title} (${newsFeed[i].comments_count})</a>
-    </li>
-   `);
-  
+ 
 } 
+ 
+function router(){
+  const routePath = location.hash;
+  if(routePath === ''){
+    newsFeed();  
+  } else if(routePath.indexOf('#/page/') >= 0 ){  
+    store.currentPage = Number(routePath.substr(7));
+    newsFeed();  
+  } else{ 
+    newsDetail();
+  }
+}     
 
-newsList.push('</ul>');  
-container.innerHTML = newsList.join('');
+window.addEventListener('hashchange', router);
+
+router();
