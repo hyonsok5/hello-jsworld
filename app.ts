@@ -49,7 +49,7 @@ function getData<AjaxResponse>(url: string): AjaxResponse {
 function makeFeeds(feeds: NewsFeed[]): NewsFeed[] {
   for(let i=0;i<feeds.length;i++){
     feeds[i].read = false;
-  }
+  }  
  
   return feeds;
 }
