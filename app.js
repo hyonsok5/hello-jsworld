@@ -9,8 +9,6 @@ const store = {
   currentPage: 1,
 };
 
-
-  
 function getData(url){
   ajax.open('GET', url, false);
   ajax.send();
@@ -23,7 +21,19 @@ function newsFeed(){
   const newsFeed = getData(NEWS_URL);
   const newsFeedLen = newsFeed.length/10;
   const newsList = [];
-  newsList.push('<ul>');
+  let template = `
+    <div class="container mx-auto p-4">
+      <h1>Hacker News</h1>
+      <ul>
+        {{__news_feed__}}
+      </ul>  
+      <div>
+        <a href="#/page/{{__prev_page__}}">Prev</a>
+        <a href="#/page/{{__next_page__}}">Next</a>
+      </div>  
+    </div>
+  `;
+
   for(let i = (store.currentPage-1)*10; i < store.currentPage*10; i++) {
 
     newsList.push(  
@@ -33,15 +43,12 @@ function newsFeed(){
       `);  
       
   } 
-  console.log(newsFeedLen);
-  newsList.push('</ul>');  
-  newsList.push(`
-    <div>
-      <a href="#/page/${store.currentPage > 1 ? store.currentPage-1 : 1}">Prev</a>
-      <a href="#/page/${store.currentPage+1 < newsFeedLen+1?store.currentPage+1:store.currentPage}">Next</a>
-    </div>  
-  `);  
-  container.innerHTML = newsList.join('');
+
+  template = template.replace('{{__news_feed__}}',newsList.join(''));
+  template = template.replace('{{__prev_page__}}', store.currentPage >1 ? store.currentPage-1:1);
+  template = template.replace('{{__next_page__}}',store.currentPage+1 < newsFeedLen+1?store.currentPage+1:store.currentPage);
+
+  container.innerHTML = template;
   
 }
 
